@@ -1,0 +1,206 @@
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Sale:
+ *       type: object
+ *       required:
+ *         - IdCliente
+ *         - IdEmpleado
+ *         - Cliente
+ *         - FechaVenta
+ *         - Hora
+ *         - Total
+ *         - MetodoPago
+ *       properties:
+ *         IdVenta:
+ *           type: integer
+ *           description: ID único de la Venta.
+ *         IdCliente:
+ *           type: integer
+ *           description: ID del Cliente Asociado.
+ *         IdEmpleado:
+ *           type: integer
+ *           description: ID único del Empleado.
+ *         Cliente:
+ *           type: string
+ *           description: Cliente Asociado.
+ *         FechaVenta:
+ *           type: string
+ *           format: date-time
+ *           description: Fecha de la Venta.
+ *         Hora:
+ *           type: string
+ *           format: time
+ *           description: Hora de la Venta.
+ *         Total:
+ *           type: number
+ *           format: float
+ *           description: Total de la Venta.
+ *         MetodoPago:
+ *           type: string
+ *           description: Método del Pago.
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           description: Fecha de Creación.
+ *         updated_at:
+ *           type: string
+ *           format: date-time
+ *           description: Fecha de la última Actualización.
+ *         deleted_at:
+ *           type: string
+ *           format: date-time
+ *           description: Fecha de Eliminación.
+ *       example:
+ *         IdVenta: 1
+ *         IdCliente: 1
+ *         IdEmpleado: 1
+ *         Cliente: "Zahid"
+ *         FechaVenta: "2024-10-22T10:20:30Z"
+ *         Hora: "10:20:00"
+ *         Total: 75.00
+ *         MetodoPago: "Efectivo"
+ *         created_at: "2024-10-22T10:20:30Z"
+ *         updated_at: "2024-10-22T10:20:30Z"
+ *         deleted_at: null
+ */
+
+/**
+ * @swagger
+ * /api/sales:
+ *   get:
+ *     summary: Obtiene la lista de todas las Ventas.
+ *     tags: [Sales (Consult)]
+ *     responses:
+ *       200:
+ *         description: Lista de Ventas.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Sale'
+ *       500:
+ *         description: Error en el Servidor.
+ */
+
+/**
+ * @swagger
+ * /api/sales:
+ *   post:
+ *     summary: Crea una Nueva Venta.
+ *     tags: [Sales]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Sale'
+ *     responses:
+ *       201:
+ *         description: Venta creada exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Sale'
+ *       400:
+ *         description: Datos de entrada inválidos.
+ *       500:
+ *         description: Error en el Servidor.
+ */
+
+/**
+ * @swagger
+ * /api/sales/{id}:
+ *   get:
+ *     summary: Obtiene una Venta por su ID.
+ *     tags: [Sales]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID de la Venta.
+ *     responses:
+ *       200:
+ *         description: Venta encontrada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Sale'
+ *       404:
+ *         description: Venta no encontrada.
+ *       500:
+ *         description: Error en el Servidor.
+ */
+
+/**
+ * @swagger
+ * /api/sales/{id}:
+ *   put:
+ *     summary: Actualiza una Venta por su ID.
+ *     tags: [Sales]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID de la Venta.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Sale'
+ *     responses:
+ *       200:
+ *         description: Venta actualizada exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Sale'
+ *       400:
+ *         description: Datos de entrada inválidos.
+ *       404:
+ *         description: Venta no encontrada.
+ *       500:
+ *         description: Error en el Servidor.
+ */
+
+/**
+ * @swagger
+ * /api/sales/{id}:
+ *   delete:
+ *     summary: Elimina una Venta por su ID.
+ *     tags: [Sales]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID de la Venta a eliminar.
+ *     responses:
+ *       200:
+ *         description: Venta eliminada exitosamente.
+ *       404:
+ *         description: Venta no encontrada.
+ *       500:
+ *         description: Error en el Servidor.
+ */
+
+const express = require('express');
+const ventasController = require('../controllers/salesController');
+
+const router = express.Router();
+
+router.get('/', ventasController.getAllVentas);
+router.post('/', ventasController.createVentas);
+router.get('/:id', ventasController.getVentasById);
+router.put('/:id', ventasController.updateVentas);
+router.delete('/:id', ventasController.deleteVentas);
+
+module.exports = router;
