@@ -1,0 +1,35 @@
+<app-headermenu></app-headermenu>
+
+<div class="login-container">
+  <div class="login-card">
+    <h2>Iniciar Sesión</h2>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Correo Electrónico</label>
+        <input type="email" formControlName="correo" placeholder="Tu correo">
+        <div *ngIf="loginForm.get('correo')?.invalid && loginForm.get('correo')?.touched" class="error">
+          Correo inválido
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" formControlName="contrasenia" placeholder="Tu contraseña">
+        <div *ngIf="loginForm.get('contrasenia')?.invalid && loginForm.get('contrasenia')?.touched" class="error">
+          Contraseña requerida
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" [disabled]="loginForm.invalid || loading">
+        {{ loading ? 'Cargando...' : 'Iniciar Sesión' }}
+      </button>
+    </form>
+  </div>
+</div>
+
+<app-footer></app-footer>

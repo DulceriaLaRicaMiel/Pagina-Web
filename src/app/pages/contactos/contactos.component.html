@@ -1,0 +1,106 @@
+<app-headermenu></app-headermenu>
+
+<div class="map-container">
+    <iframe class="map" 
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3766.238335380234!2d-96.9280627!3d18.895147!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85c4e5671c099761%3A0xeeea402df49593b0!2sAv.%2012%201103%2C%20Miguel%20Alem%C3%A1n%20Valdez%2C%2094620%20C%C3%B3rdoba%2C%20Ver.!5e0!3m2!1ses-419!2smx!4v1718765436789!5m2!1ses-419!2smx" 
+        frameborder="0" 
+        allowfullscreen="" 
+        loading="lazy" 
+        referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
+</div>
+
+<div class="contact-container">
+    <div class="decoration dec-1"></div>
+    <div class="decoration dec-2"></div>
+    <h1>Contáctanos</h1>
+
+    <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label for="name">Nombre</label>
+            <input type="text" id="name" name="name" formControlName="name" required placeholder="Ingresa el Nombre" (keypress)="onKeyPress($event)" maxlength="40" [ngClass]="{ 'is-invalid': submitted && f['name'].errors }">
+            <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
+                <div *ngIf="f['name'].errors['required']">El Nombre es Requerido</div>
+                <span *ngIf="contactForm.get('name')?.invalid && contactForm.get('name')?.touched" class="error-message">
+                    El Nombre es obligatorio
+                </span>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Correo Electrónico</label>
+            <input type="email" id="email" name="email" formControlName="email" required placeholder="Ingresa el Correo" (input)="validarCorreo()" maxlength="50" [ngClass]="{ 'is-invalid': submitted && f['email'].errors }">
+            <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+                <div *ngIf="f['email'].errors['required']">El Correo Electrónico es Requerido</div>
+                <div *ngIf="f['email'].errors['email']">Ingresa un Correo Electrónico Válido</div>
+                <span *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched" class="error-message">
+                    El Correo es obligatorio
+                </span>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="subject">Asunto</label>
+            <input type="text" id="subject" name="subject" formControlName="subject" required placeholder="Ingresa el Asunto" (keypress)="onKeyPress($event)" maxlength="50" [ngClass]="{ 'is-invalid': submitted && f['subject'].errors }">
+            <div *ngIf="submitted && f['subject'].errors" class="invalid-feedback">
+                <div *ngIf="f['subject'].errors['required']">El Asunto es Requerido</div>
+                <span *ngIf="contactForm.get('subject')?.invalid && contactForm.get('subject')?.touched" class="error-message">
+                    El Asunto es obligatorio
+                </span>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="message">Mensaje</label>
+            <textarea id="message" name="message" formControlName="message" required placeholder="Ingresa el Mensaje" (keypress)="onKeyPress($event)" maxlength="300" [ngClass]="{ 'is-invalid': submitted && f['message'].errors }"></textarea>
+            <div *ngIf="submitted && f['message'].errors" class="invalid-feedback">
+                <div *ngIf="f['message'].errors['required']">El Mensaje es Requerido</div>
+                <span *ngIf="contactForm.get('message')?.invalid && contactForm.get('message')?.touched" class="error-message">
+                    El Mensaje es obligatorio
+                </span>
+            </div>
+        </div>
+        
+        <input type="hidden" name="_next" value="http://localhost:4200/contactos">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="table">
+        <input type="text" name="_honey" style="display:none">
+        
+        <button type="submit" [disabled]="isLoading">
+            <span *ngIf="!isLoading">Enviar Mensaje</span>
+            <span *ngIf="isLoading">
+                <i class="fa fa-spinner fa-spin"></i> Enviando...
+            </span>
+        </button>
+        
+        <div *ngIf="successMessage" class="success-message">
+            {{ successMessage }}
+        </div>
+    </form>
+</div>
+
+<div class="content-contactos">
+    <div class="contact-text">
+        <h2>¡Déjanos endulzar tu día!</h2>
+        <div class="highlight-box">
+            <p>En <span>La Rica Miel</span>, cada mensaje que recibimos es muy importante.</p>
+        </div>
+    </div>
+</div>
+
+<div class="content">
+    <div class="content-wrapper">
+        <div class="content-group">
+            <img src="/assets/dulceriarm.png" alt="Nuestra dulcería" class="content-image">
+            <div class="contact-info">
+                <h2>Horario y Contacto</h2>
+                <p><i class="fas fa-phone"></i> +52 271 714 0917</p>
+                <p><i class="fas fa-envelope"></i> {{ email }}</p>
+                <p><i class="fas fa-clock"></i> Lunes a Viernes: 7:00 a.m. - 8:00 p.m.</p>
+                <p><i class="fas fa-map-marker-alt"></i> Calle 11 No. 1201 Esq. Av. 12, Córdoba, Ver.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-footer></app-footer>

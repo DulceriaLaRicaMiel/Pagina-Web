@@ -1,0 +1,6 @@
+git add .
+git commit -m "texto"
+git push -u origin main
+git clone -b nombrederama --single-branch urlderepositorio
+
+git clone -b apiVersionFull --single-branch https://github.com/Zahid-Monraga-Contreras/API-TIDSM-5A

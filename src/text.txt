@@ -1,0 +1,84 @@
+// This is your test secret API key.
+const stripe = require('stripe')('sk_test_51RfBrHRjoYBH8yfCpuFBhGz129ecv1ztz2cOzwimgJXwMm4VOa76qSV8l1Zijnpr2f1Y832h5Q0tq6m4LkAHsmwh00hF2debQX');
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(express.static('public'));
+
+app.use(cors())
+app.use(bodyParser.json());
+
+const YOUR_DOMAIN = 'http://localhost:4242';
+
+app.post('/checkout', async (req, res) => {
+  const items = req.body.items.map((item) => {
+    return {
+      price_data: {
+        currency: 'mxn',
+        product_data: {
+          name: item.title,
+          images: [item.image]
+        },
+        unit_amount: item.price * 100,
+      },
+      quantity: item.qty
+    }
+  });
+
+  const sesssion = await stripe.checkout.session.create({
+    line_items: [...items],
+    mode: 'payment',
+    success_url: `${YOUR_DOMAIN}/success.html`,
+    cancel_url: `${YOUR_DOMAIN}/cancel.html`
+  });
+
+  res.status(200).json(sesssion);
+});
+
+app.get('/session-status', async (req, res) => {
+  const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
+
+  res.send({
+    status: session.status,
+    customer_email: session.customer_details.email
+  });
+});
+
+app.listen(4242, () => console.log('Running on port 4242'));
+
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
+import { Product } from '@shared/models/product';
+import { loadStripe } from '@stripe/stripe-js';
+import { map } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class CheckoutService {
+
+  private readonly _http = inject(HttpClient);
+  private readonly _url = environment.serverURL;
+
+  checkout(product:Product[]): any {
+    return this._http.post(`${this._url}/productos`, {items: product})
+    .pipe(
+      map(async (res:any) => {
+        const stripe = await loadStripe(environment.stripeAPIKey);
+        stripe?.redirectToCheckout({ sessionId: res.id });
+      })
+    ).subscribe({
+      error:(err) => console.error('Error', err),
+    })
+  }
+}
+
+private readonly _checkoutSvc = inject(CheckoutService);
+
+  checkout(): void {
+
+    this._checkoutSvc.checkout(this.addToCart.products());
+  }

@@ -1,0 +1,223 @@
+<app-headermenu></app-headermenu>
+
+<div class="container">
+  <header>
+    <nav>
+      <div class="logo">
+      </div>
+      <!--<div class="cart-icon" (click)="toggleCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count">{{ cartTotalItems }}</span>
+      </div>-->
+    </nav>
+  </header>
+
+  <main>
+    <section class="search-section">
+      <div class="search-container">
+        <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="filterProducts()" (keypress)="onKeyPress($event)" maxlength="50"
+               placeholder="Buscar productos...">
+        <button (click)="filterProducts()"><i class="fas fa-search"></i></button>
+      </div>
+      <div class="filter-container">
+  <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()">
+    <option value="all">Todas las categorías</option>
+    <option *ngFor="let category of categories" [value]="category.value">
+      {{ category.name }}
+    </option>
+  </select>
+
+  <select [(ngModel)]="selectedSubcategory" (change)="filterProducts()" 
+          [disabled]="selectedCategory === 'all'">
+    <option value="all">Todas las subcategorías</option>
+    <option *ngFor="let subcat of getCurrentSubcategories()" [value]="subcat.value">
+      {{ subcat.name }}
+    </option>
+  </select>
+        <select [(ngModel)]="selectedMinPieces" (change)="filterProducts()">
+        <option value="all">Cualquier Cantidad</option>
+        <option value="4">Mayoreo a 4 piezas</option>
+        <option value="5">Mayoreo a 5 piezas</option>
+         <option value="10">Mayoreo a 10 piezas</option>
+        <option value="12">Mayoreo a 12 piezas</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="products-section">
+      <h2>Nuestros Productos</h2>
+      <div class="products-container">
+        <div *ngIf="filteredProducts.length === 0" class="no-products">
+          <i class="fas fa-search"></i>
+          <p>No se encontraron productos que coincidan con tu búsqueda.</p>
+        </div>
+        
+        <div *ngFor="let product of filteredProducts" class="product-card">
+          <div class="product-badge" *ngIf="product.isFeatured"></div>
+          
+          <div class="product-stock-indicator" [class.out-of-stock]="product.stock <= 0">
+          {{ product.stock > 0 ? 'Disponible' : 'Agotado' }}
+          </div>
+
+          <div class="product-image">
+            <img class="imagen-brillante" alt="Imagen con brillo" [src]="product.image" [alt]="product.title">
+          </div>
+          
+          <div class="product-info">
+            <div class="product-category"> {{ getCategoryName(product.category, product.subcategory) }}</div>
+            <h3 class="product-title">{{ product.title }}</h3>
+            <div class="product-part">{{ product.part }}</div>
+            
+            <div class="product-rating">
+              <i *ngFor="let star of getStars(product.rating)" 
+                 [class]="'fas ' + (star === 'full' ? 'fa-star' : star === 'half' ? 'fa-star-half-alt' : 'far fa-star')"></i>
+              <span>({{ product.reviews }})</span>
+            </div>
+            
+            <div class="product-actions">
+              <!--<button class="add-to-cart" (click)="addToCart(product)" [disabled]="product.stock <= 0">
+                <i class="fas fa-shopping-cart"></i> {{ product.stock <= 0 ? 'Agotado' : 'Agregar' }}
+              </button>-->
+              <button class="zoom-btn" (click)="openImageViewer(product.image); $event.stopPropagation()">
+                <i class="fas fa-search-plus"></i> Zoom
+              </button>
+              <button class="view-details" (click)="viewDetails(product.id)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+<div class="product-modal" [class.open]="isProductModalOpen && selectedProduct" (click)="closeProductModal()">
+  <div class="product-modal-content" (click)="$event.stopPropagation()">
+    <button class="close-modal" (click)="closeProductModal()">
+      <i class="fas fa-times"></i>
+    </button>
+    
+    <div *ngIf="selectedProduct" class="product-details">
+      <!--<div class="product-details-image" (click)="openImageViewer(selectedProduct.image)">-->
+        <div class="product-details-image">
+        <img class="imagen-brillante" alt="Imagen con brillo" [src]="selectedProduct.image" [alt]="selectedProduct.title">
+        <!--<div class="zoom-hint">
+    <i class="fas fa-search-plus"></i> Haz clic para zoom
+  </div>-->
+      </div>
+      
+      <div class="product-details-info">
+        <h3>{{ selectedProduct.title }}</h3>
+        <div class="product-category"> {{ getCategoryName(selectedProduct.category, selectedProduct.subcategory) }}</div>
+        
+        <div class="product-rating">
+          <i *ngFor="let star of getStars(selectedProduct.rating)" 
+             [class]="'fas ' + (star === 'full' ? 'fa-star' : star === 'half' ? 'fa-star-half-alt' : 'far fa-star')"></i>
+          <span>({{ selectedProduct.reviews }})</span>
+        </div>
+
+        <div class="product-part">{{ selectedProduct.part }}</div>
+        
+        <p class="product-description">{{ selectedProduct.description }}</p>
+        
+        <!--<div class="product-stock">
+          Disponibilidad: 
+          <span [class.in-stock]="selectedProduct.stock > 0" 
+           [class.out-of-stock]="selectedProduct.stock <= 0">
+           {{ selectedProduct.stock > 0 ? 'Disponible' : 'Agotado' }}
+          </span>
+        </div>-->
+        
+        <div class="product-modal-actions">
+        <button class="zoom-btn" (click)="openImageViewer(selectedProduct.image)">
+          <i class="fas fa-search-plus"></i> Hacer Zoom
+        </button>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="image-viewer-overlay" *ngIf="isImageViewerOpen" (click)="closeImageViewer()">
+  <div class="image-viewer-container" (click)="$event.stopPropagation()">
+    <button class="close-btn" (click)="closeImageViewer()">
+      <i class="fas fa-times"></i>
+    </button>
+    <img 
+      [src]="currentImageUrl" 
+      [style.transform]="'scale(' + imageZoomScale + ') translate(' + imageOffsetX + 'px, ' + imageOffsetY + 'px)'"
+      [style.cursor]="isDraggingImage ? 'grabbing' : 'grab'"
+      (mousedown)="startImageDrag($event)"
+      (mousemove)="onImageDrag($event)"
+      (mouseup)="endImageDrag()"
+      (mouseleave)="endImageDrag()"
+      (wheel)="onImageWheel($event)"
+    >
+  </div>
+</div>
+
+    <div class="cart-modal" [class.open]="isCartOpen">
+      <div class="cart-content" (click)="$event.stopPropagation()">
+        <div class="cart-header">
+          <h3>Tu Carrito</h3>
+          <button class="close-cart" (click)="toggleCart()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="cart-items">
+          <div *ngIf="isCartEmpty" class="empty-cart">
+            <i class="fas fa-shopping-cart"></i>
+            <br>
+            <a href="/productos" class="continue-shopping" (click)="toggleCart()">Continuar comprando</a>
+          </div>
+          
+          <div *ngIf="!isCartEmpty" class="cart-items">
+          <div *ngFor="let item of cart" class="cart-item">
+            <div class="cart-item-image">
+              <img class="imagen-brillante" alt="Imagen con brillo" [src]="item.image" [alt]="item.title">
+            </div>
+            
+            <div class="cart-item-info">
+              <h4 class="cart-item-title">{{ item.title }}</h4>
+              <div class="cart-item-price">${{ item.price.toFixed(2) }}</div>
+              
+              <div class="cart-item-quantity">
+                <button class="quantity-btn decrease" (click)="updateQuantity(item.id, -1)">-</button>
+                <span>{{ item.quantity }}</span>
+                <button class="quantity-btn increase" (click)="updateQuantity(item.id, 1)">+</button>
+                <button class="cart-item-remove" (click)="removeFromCart(item.id)">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+        
+        <div class="cart-footer">
+          <div class="cart-total">
+            <span>Total:</span>
+            <span id="cart-total-price">${{ cartTotalPrice.toFixed(2) }}</span>
+          </div>
+          <button class="checkout-btn" 
+        (click)="checkout()" 
+        [disabled]="processingPayment || cart.length === 0">
+    <span class="button-content">
+        <span *ngIf="!processingPayment">Proceder el pago</span>
+        <span *ngIf="processingPayment" class="loading-indicator">
+            Procesando pago...
+            <span class="spinner"></span>
+        </span>
+    </span>
+</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+<div class="notification" *ngIf="notification.show">
+  <i class="fas fa-check-circle"></i>
+  <p>{{ notification.message }}</p>
+</div>
+
+<app-footer></app-footer>

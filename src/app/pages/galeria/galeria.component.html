@@ -1,0 +1,50 @@
+<app-headermenu></app-headermenu>
+
+<div class="container">
+    <h1>Nuestra Galería</h1>
+    <div class="gallery">
+        <div class="gallery-item" *ngFor="let image of images" (click)="openModal(image)">
+            <img [src]="image.src" [alt]="image.alt" class="gallery-image">
+            <div class="gallery-caption">
+                <h3>{{image.title}}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para múltiples imágenes -->
+<div class="modal" [class.active]="modalOpen" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <span class="close" (click)="closeModal()">&times;</span>
+        
+        <div class="image-scroll-container">
+            <div class="image-group">
+                <div class="image-container" *ngFor="let img of currentImages; let i = index">
+                    <img [src]="img.src" [alt]="img.alt" class="modal-image"
+                         [class.active]="i === activeImageIndex"
+                         [style.transform]="i === activeImageIndex ? 
+                         ('scale(' + zoomLevel + ') translate(' + offsetX + 'px, ' + offsetY + 'px)') : 'none'"
+                         (click)="setActiveImage(i)"
+                         (wheel)="i === activeImageIndex ? onZoom($event) : null"
+                         (mousedown)="i === activeImageIndex ? startDrag($event) : null"
+                         (mousemove)="i === activeImageIndex ? onDrag($event) : null"
+                         (mouseup)="i === activeImageIndex ? endDrag() : null"
+                         (mouseleave)="i === activeImageIndex ? endDrag() : null">
+                    <div class="modal-caption">
+                        <h3>{{img.title}}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="zoom-controls">
+            <button (click)="zoomIn()">+</button>
+            <button (click)="zoomOut()">-</button>
+            <button (click)="resetZoom()">R</button>
+            <button (click)="prevImage()">←</button>
+            <button (click)="nextImage()">→</button>
+        </div>
+    </div>
+</div>
+
+<app-footer></app-footer>

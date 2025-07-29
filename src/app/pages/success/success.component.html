@@ -1,0 +1,67 @@
+<div class="container">
+  <div *ngIf="loading" class="loading">
+    <p>Verificando tu Pago...</p>
+  </div>
+
+  <div *ngIf="!loading && !error && ticketData" class="success-message">
+    <h1>¡Pago Exitoso!</h1>
+    <div class="icon success-icon">✓</div>
+    
+    <!-- Ticket de compra -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <h2>{{ticketData.business}}</h2>
+        <p>{{ticketData.name}}</p>
+        <p>Tel: {{ticketData.phone}}</p>
+        <p>{{ticketData.address}}</p>
+        <p>{{ticketData.rfc}}</p>
+        <p>{{ticketData.location}}</p>
+      </div>
+      
+      <div class="ticket-body">
+        <p>Fecha: {{ticketData.date}} - Hora: {{ticketData.time}}</p>
+        <hr>
+        
+        <h3>Detalle de compra:</h3>
+        <div *ngFor="let item of ticketData.items" class="ticket-item">
+          <span>{{item.title}} x{{item.quantity}}</span>
+          <span>${{item.price * item.quantity | number:'1.2-2'}}</span>
+        </div>
+        
+        <hr>
+        <div class="ticket-total">
+          <span>Total:</span>
+          <span>${{ticketData.total | number:'1.2-2'}}</span>
+        </div>
+        <p>({{ticketData.totalInWords}})</p>
+      </div>
+      
+      <div class="ticket-footer">
+        <p>Salida la mercancía no se aceptan devoluciones</p>
+        <p>Gracias por su Compra</p>
+        <p class="important">Tiene hasta el {{ticketData.pickupDate}} para recoger su producto</p>
+      </div>
+    </div>
+    
+    <h5>Nota: Para recibir su producto tiene que mostrar su ticket impreso a las Cajeras.</h5>
+    <div class="action-buttons">
+    <button class="btn" routerLink="/productos">
+      Volver a la Tienda
+    </button>
+     <button class="btn download-btn" (click)="downloadTicket()" [disabled]="downloadDisabled">
+        {{ downloadDisabled ? 'Ticket Descargado' : 'Descargar Ticket' }}
+      </button>
+  </div>
+  <br>
+  <h5>El Boton de Descarga solo se habilitara una vez así que por lo tanto debe de descargar su ticket si se sale ya no podra ingresar.</h5>
+  <h4>¡Gracias por su atención!</h4>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <div class="icon error-icon">✗</div>
+    <p>{{error}}</p>
+    <button class="btn btn-error" routerLink="/productos">
+      Volver a la Tienda
+    </button>
+  </div>
+</div>

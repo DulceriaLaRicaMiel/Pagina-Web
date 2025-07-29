@@ -1,0 +1,71 @@
+<div class="dashboard-container">
+  <app-menu></app-menu>
+
+  <div class="main-content">
+    <br />
+    <h1 style="text-align: center; color: #e80c76;">Gestión de Usuarios</h1>
+    
+    <!-- Barra de búsqueda -->
+    <div class="search-container">
+      <div class="search-bar">
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          (input)="onSearch()" 
+          placeholder="Buscar por nombre o correo..."
+        />
+        <i class="fas fa-search"></i>
+      </div>
+    </div>
+  
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Tipo</th>
+            <th>Fecha de Creación</th>
+            <th>Última Modificación</th>
+          </tr>
+        </thead>
+        <tbody id="tablaUsuarios">
+          <tr *ngFor="let usuario of paginatedUsers">
+            <td data-label="Nombre">
+              {{ usuario.type === 'cliente' ? 
+                usuario.nombre + ' ' + usuario.appaterno + ' ' + usuario.apmaterno : 
+                usuario.nombre + ' ' + usuario.appaterno + ' ' + usuario.apmaterno }}
+            </td>
+            <td data-label="Correo">{{ usuario.correo }}</td>
+            <td data-label="Tipo">{{ usuario.type === 'cliente' ? 'Cliente' : usuario.type === 'empleado' ? 'Empleado' : 'Administrador' }}</td>
+            <td data-label="Fecha Creación">{{ usuario.created_at | date }}</td>
+            <td data-label="Última Modificación">{{ usuario.updated_at | date }}</td>
+          </tr>
+        
+          <tr *ngIf="filteredUsers.length === 0">
+            <td colspan="5" class="no-data">No hay Usuarios Disponibles</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    <div class="pagination-container" *ngIf="totalPages > 1">
+      <button (click)="prevPage()" [disabled]="currentPage === 1">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      
+      <button 
+        *ngFor="let page of getPagesArray()" 
+        (click)="goToPage(page)"
+        [class.active]="page === currentPage"
+      >
+        {{ page }}
+      </button>
+      
+      <button (click)="nextPage()" [disabled]="currentPage === totalPages">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>

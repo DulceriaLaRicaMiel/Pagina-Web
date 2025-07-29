@@ -1,0 +1,121 @@
+<app-headermenu></app-headermenu>
+
+<div class="register-container">
+  <div class="register-card">
+    <h2>{{ isEmpleado ? 'Registro de Empleado' : 'Registro de Cliente' }}</h2>
+    
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Tipo de Usuario</label>
+        <select formControlName="tipoUsuario" class="form-control">
+          <option value="cliente">Cliente</option>
+          <option value="empleado">Empleado</option>
+        </select>
+      </div>
+
+      <div *ngIf="isEmpleado" class="form-group">
+  <label>Código de Verificación <span class="required"></span></label>
+  <input 
+    type="password" 
+    formControlName="codigoInvitacion" 
+    placeholder="Ingresa el código de empleado"
+    class="form-control"
+    (input)="limitarLongitud($event, 15)">
+  <div *ngIf="registerForm.get('codigoInvitacion')?.invalid && registerForm.get('codigoInvitacion')?.touched" class="error">
+    Código de empleado requerido
+  </div>
+</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre(s)</label>
+          <input type="text" formControlName="nombre" placeholder="Nombre" (keypress)="onKeyPress($event)" maxlength="40">
+          <div *ngIf="registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched" class="error">
+            Nombre requerido
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Apellido Paterno</label>
+          <input type="text" formControlName="apellidoPaterno" placeholder="Apellido paterno" (keypress)="onKeyPress($event)" maxlength="40">
+          <div *ngIf="registerForm.get('apellidoPaterno')?.invalid && registerForm.get('apellidoPaterno')?.touched" class="error">
+            Apellido requerido
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Apellido Materno</label>
+        <input type="text" formControlName="apellidoMaterno" placeholder="Apellido materno" (keypress)="onKeyPress($event)" maxlength="40">
+      </div>
+
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="tel" formControlName="telefono" placeholder="10 dígitos" (keypress)="soloNumeros($event)" (input)="limitarLongitud($event, 10)">
+        <div *ngIf="registerForm.get('telefono')?.invalid && registerForm.get('telefono')?.touched" class="error">
+          {{ registerForm.get('telefono')?.errors?.['required'] ? 'Teléfono requerido' : '10 dígitos requeridos' }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Correo Electrónico</label>
+        <input type="email" formControlName="correo" placeholder="correo@ejemplo.com" maxlength="60">
+        <div *ngIf="registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched" class="error">
+          {{ registerForm.get('correo')?.errors?.['required'] ? 'Correo requerido' : 'Correo inválido' }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" formControlName="contrasenia" placeholder="Mínimo 8 caracteres" maxlength="255">
+          <div *ngIf="registerForm.get('contrasenia')?.invalid && registerForm.get('contrasenia')?.touched" class="error">
+            {{ registerForm.get('contrasenia')?.errors?.['required'] ? 'Contraseña requerida' : 'Mínimo 8 caracteres' }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Confirmar Contraseña</label>
+          <input type="password" formControlName="confirmarContrasenia" placeholder="Repite tu contraseña" maxlength="255">
+          <div *ngIf="registerForm.errors?.['mismatch'] && registerForm.get('confirmarContrasenia')?.touched" class="error">
+            Las contraseñas no coinciden
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="isEmpleado">
+        <div class="form-row">
+          <div class="form-group">
+            <label>NSS</label>
+            <input type="text" formControlName="nss" placeholder="Número de Seguro Social" (keypress)="soloNumeros($event)" (input)="limitarLongitud($event, 11)">
+            <div *ngIf="registerForm.get('nss')?.invalid && registerForm.get('nss')?.touched" class="error">
+              NSS requerido
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>RFC</label>
+            <input type="text" formControlName="rfc" placeholder="RFC" (input)="limitarLongitud($event, 13)">
+            <div *ngIf="registerForm.get('rfc')?.invalid && registerForm.get('rfc')?.touched" class="error">
+              RFC requerido
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" [disabled]="registerForm.invalid || loading">
+        {{ loading ? 'Registrando...' : 'Completar Registro' }}
+      </button>
+
+      <div class="login-link">
+        ¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<app-footer></app-footer>

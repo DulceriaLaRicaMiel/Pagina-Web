@@ -1,0 +1,141 @@
+<div class="dashboard-container">
+    
+    <app-menu></app-menu>
+
+    <div class="main-content">
+
+    <h1 style="text-align: center; color: #e80c76;">Gestión de Ventas</h1>
+
+    <!-- Barra de búsqueda -->
+    <div class="search-container">
+      <input type="text" [(ngModel)]="searchTerm" (input)="filterSales()" 
+             placeholder="Buscar por nombre o metodo de pago..." class="search-input">
+      <i class='bx bx-search'></i>
+    </div>
+
+    <button id="btnAgregar" class="btnAgregar" (click)="openAddModal()" style="color: white; background-color: #e80c76;">
+      <i class='bx bx-user-plus'></i> Agregar Venta
+    </button>
+
+    <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Fecha Venta</th>
+              <th>Hora</th>
+              <th>Total</th>
+              <th>Metodo de Pago</th>
+              <th>Ultima Modificación</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaVentas">
+            <tr *ngFor="let sale of paginatedSales">
+            <td data-label="Nombre del Cliente">{{ sale.cliente }}</td>
+            <td data-label="Fecha de la Venta">{{ sale.fechaventa | date: 'dd/MM/yyyy' }}</td>
+            <td data-label="Hora de la Venta"> {{ sale.hora }}</td>
+            <td data-label="Total">{{ sale.total | number:'1.2-2' }}</td>
+            <td data-label="Metodo de Pago">{{ sale.metodopago }}</td>
+            <td data-label="Última Modificación">{{ sale.updated_at | date }}</td>
+            <td data-label="Acciones">
+                <button (click)="openEditModal(sale)"><i class='bx bx-edit'></i></button>
+                <button (click)="openDeleteModal(sale)"><i class='bx bx-trash'></i></button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredSales.length === 0">
+            <td colspan="7" class="no-data">No hay Ventas Disponibles</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button (click)="goToPage(1)" [disabled]="currentPage === 1">
+        <i class='bx bx-first-page'></i>
+      </button>
+      <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+        <i class='bx bx-chevron-left'></i>
+      </button>
+      
+      <button *ngFor="let page of getPageNumbers()" 
+              [class.active]="page === currentPage"
+              (click)="goToPage(page)">
+        {{ page }}
+      </button>
+      
+      <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+        <i class='bx bx-chevron-right'></i>
+      </button>
+      <button (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">
+        <i class='bx bx-last-page'></i>
+      </button>
+    </div>
+
+    <!-- Modal para agregar/editar venta -->
+<div id="modal" class="modal" *ngIf="showAddModal || showEditModal">
+    <div class="modal-contenido">
+      <span (click)="showAddModal ? closeAddModal() : closeEditModal()" class="cerrar">&times;</span>
+      <h2>{{ showAddModal ? 'Agregar Venta' : 'Editar Venta' }}</h2>
+      <form [formGroup]="salesForm" (ngSubmit)="showAddModal ? addSales() : updateSales()">
+        <label for="cliente">Cliente:</label>
+      <input type="text" id="cliente" formControlName="cliente" required placeholder="Ingrese el Cliente" (keypress)="onKeyPress($event)" maxlength="40"/>
+      <span *ngIf="salesForm.get('cliente')?.invalid && salesForm.get('cliente')?.touched" class="error-message">
+        El Cliente es obligatorio
+      </span>
+      
+        <mat-form-field appearance="outline" class="custom-datetime-container">
+         <mat-label style="color: black;">Fecha Venta</mat-label>
+      <input 
+       matInput 
+       [matDatepicker]="picker"
+       id="fechaventa"
+       formControlName="fechaventa"
+       class="custom-datetime-input" style="color: black;">
+      <mat-datepicker-toggle matSuffix [for]="picker" style="color: black;"></mat-datepicker-toggle>
+       <mat-datepicker #picker style="color: black;"></mat-datepicker>
+      <mat-error *ngIf="salesForm.get('fechaventa')?.invalid && salesForm.get('fechaventa')?.touched" class="error-message">
+        La Fecha es obligatoria
+      </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+      <mat-label for="hora" style="color: black;">Hora:</mat-label>
+      <input matInput type="time" id="hora" formControlName="hora" required step="1" class="time-input" style="color: black;">
+       <mat-error *ngIf="salesForm.get('hora')?.invalid && salesForm.get('hora')?.touched" class="error-message">
+        La hora es obligatoria 
+       </mat-error>
+      </mat-form-field>
+
+        <label for="total">Total:</label>
+        <input type="number" id="total" formControlName="total" required placeholder="Ingrese el Total" step="0.01" (keypress)="soloNumerosConDecimales($event)" (input)="limitarDecimales($event, 10)">
+        <span *ngIf="salesForm.get('total')?.invalid && salesForm.get('total')?.touched" class="error-message">
+          El Total es obligatorio
+        </span>
+        <label for="metodopago">Metodo de Pago:</label>
+      <input type="text" id="metodopago" formControlName="metodopago" required placeholder="Ingrese el Metodo de Pago" (keypress)="onKeyPress($event)" maxlength="40"/>
+      <span *ngIf="salesForm.get('metodopago')?.invalid && salesForm.get('metodopago')?.touched" class="error-message">
+        El Metodo de Pago es obligatorio
+      </span>
+        <button type="submit">
+          <i class="bx bx-save"></i> {{ showAddModal ? 'Guardar' : 'Actualizar' }}
+        </button>
+      </form>
+    </div>
+  </div>
+
+    <!-- Modal de confirmación para eliminar venta -->
+<div id="modalConfirmacion" class="modal" *ngIf="showDeleteModal">
+    <div class="modal-contenido">
+      <p>¿Estás seguro de que quieres eliminar esta venta?</p>
+      <div class="modal-buttons">
+      <button class="btnEliminar" (click)="deleteSales()">
+        <i class="bx bx-trash"></i> Eliminar
+      </button>
+      <button (click)="closeDeleteModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+</div>
+</div>

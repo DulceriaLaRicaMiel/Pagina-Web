@@ -1,0 +1,156 @@
+<div class="dashboard-container">
+  <app-menu></app-menu>
+
+  <div class="main-content">
+    
+    <h1 style="text-align: center; color: #e80c76;">Gestión de Empleados</h1>
+    
+    <!-- Barra de búsqueda -->
+    <div class="search-container">
+      <input type="text" [(ngModel)]="searchTerm" (input)="filterEmployees()" 
+             placeholder="Buscar por nombre o apellidos..." class="search-input">
+      <i class='bx bx-search'></i>
+    </div>
+    
+    <button id="btnAgregar" class="btnAgregar" (click)="openAddModal()" style="color: white; background-color: #e80c76;">
+      <i class='bx bx-user-plus'></i> Agregar Empleado
+    </button>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Apellido Paterno</th>
+            <th>Apellido Materno</th>
+            <th>Teléfono</th>
+            <th>NSS</th>
+            <th>RFC</th>
+            <th>Fecha de Creación</th>
+            <th>Ultima Modificación</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaEmpleados">
+          <tr *ngFor="let employee of paginatedEmployees">
+            <td data-label="Nombre">{{ employee.nombre }}</td>
+            <td data-label="Apellido Paterno">{{ employee.appaterno }}</td>
+            <td data-label="Apellido Materno">{{ employee.apmaterno }}</td>
+            <td data-label="Teléfono">{{ employee.telefono }}</td>
+            <td data-label="NSS">{{ employee.nss }}</td>
+            <td data-label="RFC">{{ employee.rfc }}</td>
+            <td data-label="Fecha Creación">{{ employee.created_at | date }}</td>
+            <td data-label="Última Modificación">{{ employee.updated_at | date }}</td>
+            <td data-label="Acciones">
+              <button (click)="openEditModal(employee)"><i class='bx bx-edit'></i></button>
+              <button (click)="openDeleteModal(employee)"><i class='bx bx-trash'></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredEmployees.length === 0">
+            <td colspan="9" class="no-data">No hay Empleados Disponibles</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button (click)="goToPage(1)" [disabled]="currentPage === 1">
+        <i class='bx bx-first-page'></i>
+      </button>
+      <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+        <i class='bx bx-chevron-left'></i>
+      </button>
+      
+      <button *ngFor="let page of getPageNumbers()" 
+              [class.active]="page === currentPage"
+              (click)="goToPage(page)">
+        {{ page }}
+      </button>
+      
+      <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+        <i class='bx bx-chevron-right'></i>
+      </button>
+      <button (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">
+        <i class='bx bx-last-page'></i>
+      </button>
+    </div>
+
+    <!-- Modal para agregar/editar empleado -->
+    <div id="modal" class="modal" *ngIf="showAddModal || showEditModal">
+      <div class="modal-contenido">
+        <span (click)="showAddModal ? closeAddModal() : closeEditModal()" class="cerrar">&times;</span>
+        <h2>{{ showAddModal ? 'Agregar Empleado' : 'Editar Empleado' }}</h2>
+        <form [formGroup]="employeesForm" (ngSubmit)="showAddModal ? addEmployees() : updateEmployees()">
+          <label for="nombre">Nombre:</label>
+          <input type="text" id="nombre" formControlName="nombre" required placeholder="Ingrese el Nombre" (keypress)="onKeyPress($event)" maxlength="40"/>
+          <span *ngIf="employeesForm.get('nombre')?.invalid && employeesForm.get('nombre')?.touched" class="error-message">
+            El Nombre es obligatorio
+          </span>
+          <span *ngIf="employeesForm.get('nombre')?.errors?.['soloLetras']">Solo se permiten letras y espacios</span>
+          
+          <label for="appaterno">Apellido Paterno:</label>
+          <input type="text" id="appaterno" formControlName="appaterno" required placeholder="Ingrese el Apellido Paterno" (keypress)="onKeyPress($event)" maxlength="40"/>
+          <span *ngIf="employeesForm.get('appaterno')?.invalid && employeesForm.get('appaterno')?.touched" class="error-message">
+            El Apellido Paterno es obligatorio
+          </span>
+          <span *ngIf="employeesForm.get('appaterno')?.errors?.['soloLetras']">Solo se permiten letras y espacios</span>
+          
+          <label for="apmaterno">Apellido Materno:</label>
+          <input type="text" id="apmaterno" formControlName="apmaterno" required placeholder="Ingrese el Apellido Materno" (keypress)="onKeyPress($event)" maxlength="40"/>
+          <span *ngIf="employeesForm.get('apmaterno')?.invalid && employeesForm.get('apmaterno')?.touched" class="error-message">
+            El Apellido Materno es obligatorio
+          </span>
+          <span *ngIf="employeesForm.get('apmaterno')?.errors?.['soloLetras']">Solo se permiten letras y espacios</span>
+          
+          <label for="telefono">Telefono:</label>
+          <input type="text" id="telefono" formControlName="telefono" required placeholder="Ingrese el Telefono" (keypress)="soloNumeros($event)" (input)="limitarLongitud($event, 10)"/>
+          <span *ngIf="employeesForm.get('telefono')?.invalid && employeesForm.get('telefono')?.touched" class="error-message">
+            El Telefono es obligatorio (10 dígitos)
+          </span>
+          
+          <label for="nss">NSS:</label>
+          <input type="text" id="nss" formControlName="nss" required placeholder="Ingrese el NSS" (keypress)="soloNumeros($event)" (input)="limitarLongitud($event, 11)"/>
+          <span *ngIf="employeesForm.get('nss')?.invalid && employeesForm.get('nss')?.touched" class="error-message">
+            El NSS es obligatorio (11 dígitos)
+          </span>
+          
+          <label for="rfc">RFC:</label>
+          <input type="text" id="rfc" formControlName="rfc" required placeholder="Ingrese el RFC" (input)="limitarLongitud($event, 13)"/>
+          <span *ngIf="employeesForm.get('rfc')?.invalid && employeesForm.get('rfc')?.touched" class="error-message">
+            El RFC es obligatorio (máximo 13 caracteres)
+          </span>
+          
+          <label for="correo">Correo:</label>
+          <input type="email" id="correo" formControlName="correo" required placeholder="Ingrese el Correo" (input)="validarCorreo()" maxlength="60"/>
+          <span *ngIf="employeesForm.get('correo')?.invalid && employeesForm.get('correo')?.touched" class="error-message">
+            El Correo es obligatorio y debe ser valido
+          </span>
+          
+          <label for="contrasenia">Contraseña:</label>
+          <input type="password" id="contrasenia" formControlName="contrasenia" required placeholder="Ingrese la Contraseña" maxlength="255"/>
+          <span *ngIf="employeesForm.get('contrasenia')?.invalid && employeesForm.get('contrasenia')?.touched" class="error-message">
+            La Contraseña es obligatoria
+          </span>
+          
+          <button type="submit">
+            <i class="bx bx-save"></i> {{ showAddModal ? 'Guardar' : 'Actualizar' }}
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar empleado -->
+    <div id="modalConfirmacion" class="modal" *ngIf="showDeleteModal">
+      <div class="modal-contenido">
+        <p>¿Estás seguro de que quieres eliminar este empleado?</p>
+        <div class="modal-buttons">
+          <button class="btnEliminar" (click)="deleteEmployees()">
+            <i class="bx bx-trash"></i> Eliminar
+          </button>
+          <button (click)="closeDeleteModal()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

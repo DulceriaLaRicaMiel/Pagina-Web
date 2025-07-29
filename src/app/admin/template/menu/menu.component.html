@@ -1,0 +1,64 @@
+<aside class="sidebar">
+    <div class="mobile-menu-toggle" (click)="toggleMobileMenu()">
+    </div>
+    <div class="logo">
+        <span style="color: #e80c76;">La Rica Miel</span>
+    </div>
+    
+    <nav class="menu" [class.active]="isMobileMenuActive">
+        <!-- Dashboard -->
+        <div class="menu-item" [class.active]="activeItem === 'dashboard'" 
+             *ngIf="shouldShowItem('dashboard')"
+             (click)="setActiveItem('dashboard'); isMobileMenuActive = false" routerLink="/inicio">
+            <span class="menu-icon"><i style="color: #e80c76;" class="bi bi-bar-chart-line-fill"></i></span>
+            <span>Inicio</span>
+        </div>
+
+        <!-- Usuarios -->
+        <div class="menu-item" [class.active]="activeItem === 'users'" 
+             *ngIf="shouldShowItem('users')"
+             (click)="setActiveItem('users'); isMobileMenuActive = false" routerLink="/usuarios">
+            <span class="menu-icon"><i style="color: #e80c76;" class="bi bi-people-fill"></i></span>
+            <span>Usuarios</span>
+        </div>
+
+        <!-- Clientes -->
+        <div class="menu-item" [class.active]="activeItem === 'clients'" 
+             *ngIf="shouldShowItem('clients')"
+             (click)="setActiveItem('clients'); isMobileMenuActive = false" routerLink="/clientes">
+            <span class="menu-icon"><i style="color: #e80c76;" class="bi bi-person-vcard"></i></span>
+            <span>Clientes</span>
+        </div>
+
+        <!-- Empleados -->
+        <div class="menu-item" [class.active]="activeItem === 'employees'" 
+             *ngIf="shouldShowItem('employees')"
+             (click)="setActiveItem('employees'); isMobileMenuActive = false" routerLink="/empleados">
+            <span class="menu-icon"><i style="color: #e80c76;" class="bi bi-person-badge"></i></span>
+            <span>Empleados</span>
+        </div>
+
+        <!-- Productos -->
+        <div class="menu-item" [class.active]="activeItem === 'products'" 
+             *ngIf="shouldShowItem('products')"
+             (click)="setActiveItem('products'); isMobileMenuActive = false" routerLink="/inventarios">
+            <span class="menu-icon"><i style="color: #e80c76;" class="bi bi-box-seam-fill"></i></span>
+            <span>Productos</span>
+        </div>
+
+        <!-- Ventas -->
+        <div class="menu-item" [class.active]="activeItem === 'sales'" 
+             *ngIf="shouldShowItem('sales')"
+             (click)="setActiveItem('sales'); isMobileMenuActive = false" routerLink="/ventas">
+            <span class="menu-icon"><i style="color: #e80c76;" class="bi bi-currency-dollar"></i></span>
+            <span>Ventas</span>
+        </div>
+
+        <!-- Cerrar sesión -->
+        <div class="menu-item" [class.active]="activeItem === 'logout'" 
+             (click)="logout()">
+            <span class="menu-icon"><i style="color: #e80c76;" class="bi bi-door-closed-fill"></i></span>
+            <span>Cerrar sesión</span>
+        </div>
+    </nav>
+</aside>
