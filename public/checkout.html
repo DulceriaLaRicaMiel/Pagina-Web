@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Accept a payment</title>
+    <meta name="description" content="A demo of a payment on Stripe" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://js.stripe.com/basil/stripe.js"></script>
+    <script src="checkout.js" defer></script>
+  </head>
+  <body>
+    <!-- Display a payment form -->
+      <div id="checkout">
+        <!-- Checkout will insert the payment form here -->
+          <script>
+    const stripe = Stripe('pk_test_51RfBrHRjoYBH8yfC4nNzwL9VmGsa50tYZ7dxE6pyQSgEZwh4VqDC3wmSEHKQHP6RWXlke6FqdSqwpPZuDeTkS9He00zKAxrwq5');
+    
+    async function initialize() {
+      const response = await fetch('/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ items: [] }) // Los items vienen del carrito
+      });
+      
+      const { id } = await response.json();
+      
+      const { error } = await stripe.redirectToCheckout({ sessionId: id });
+      
+      if (error) {
+        console.error('Error:', error);
+      }
+    }
+    
+    initialize();
+  </script>
+      </div>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+PS C:\Users\zahid\stripe> git init
+Initialized empty Git repository in C:/Users/zahid/stripe/.git/
+PS C:\Users\zahid\stripe> git config user.name "DulceriaLaRicaMiel"
+PS C:\Users\zahid\stripe> git config user.email "laricamieldulceria@gmail.com"
+PS C:\Users\zahid\stripe> git config user.name  
+DulceriaLaRicaMiel
+PS C:\Users\zahid\stripe> git config user.email
+laricamieldulceria@gmail.com
+PS C:\Users\zahid\stripe> git remote add origin https://DulceriaLaRicaMiel@github.com/DulceriaLaRicaMiel/Pagina-Web.git    
+PS C:\Users\zahid\stripe> 
