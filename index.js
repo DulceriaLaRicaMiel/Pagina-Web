@@ -17,7 +17,7 @@ const app = express();
 const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [
       process.env.FRONTEND_URL,
-      'https://pagina-web-8pqm.onrender.com',
+      'https://https://pagina-web-1-hqfw.onrender.com',
       `https://${process.env.RENDER_SERVICE_NAME}.onrender.com`
     ].filter(Boolean)
   : '*';
