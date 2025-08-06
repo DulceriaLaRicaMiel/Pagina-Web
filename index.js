@@ -13,31 +13,31 @@ const swaggerDocs = require('./app/config/swagger');
 
 const app = express();
 
-// Configuración dinámica para CORS
+// Configuración dinámica para CORS (versión optimizada)
 const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [
       process.env.FRONTEND_URL,
-      'https://https://pagina-web-1-hqfw.onrender.com',
-      `https://${process.env.RENDER_SERVICE_NAME}.onrender.com`
+      /https:\/\/[a-zA-Z0-9-]+\.onrender\.com$/
     ].filter(Boolean)
   : '*';
 
 app.use(cors({
   origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Middleware para URL base dinámica
+// Middleware para URL base dinámica (igual que tu versión)
 app.use((req, res, next) => {
   req.baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
   next();
 });
 
-// Configuración Swagger dinámica
+// Configuración Swagger dinámica (igual que tu versión)
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -55,7 +55,7 @@ const swaggerOptions = {
 
 swaggerDocs(app, swaggerOptions);
 
-// Rutas
+// Rutas (igual que tu versión)
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/clients', clientsRoutes);
@@ -64,10 +64,20 @@ app.use('/api/administrator', adminsRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/sales', salesRoutes);
 
+// Health Check Endpoint (añadido recomendado para Render)
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    environment: process.env.NODE_ENV || 'development',
+    baseUrl: `${req.protocol}://${req.get('host')}`
+  });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   const serverUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
   console.log(`Servidor corriendo en ${serverUrl}`);
   console.log(`Modo: ${process.env.NODE_ENV || 'development'}`);
   console.log(`Documentación Swagger: ${serverUrl}/api-docs`);
+  console.log(`Health Check: ${serverUrl}/health`); // Nueva línea
 });
