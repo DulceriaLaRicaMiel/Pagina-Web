@@ -13,11 +13,12 @@ const swaggerDocs = require('./app/config/swagger');
 
 const app = express();
 
-// Configuración dinámica para CORS (versión optimizada)
+// Configuración mejorada para CORS
 const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [
       process.env.FRONTEND_URL,
-      /https:\/\/[a-zA-Z0-9-]+\.onrender\.com$/
+      /https:\/\/[a-zA-Z0-9-]+\.onrender\.com$/,
+      process.env.RENDER_EXTERNAL_URL
     ].filter(Boolean)
   : '*';
 
@@ -30,13 +31,15 @@ app.use(cors({
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Middleware para URL base dinámica
+// Middleware mejorado para URL base
 app.use((req, res, next) => {
-  req.baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+  req.baseUrl = process.env.RENDER_EXTERNAL_URL || 
+               process.env.BASE_URL || 
+               `${req.protocol}://${req.get('host')}`;
   next();
 });
 
-// Configuración Swagger dinámica
+// Configuración Swagger dinámica mejorada
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -46,7 +49,9 @@ const swaggerOptions = {
       description: 'API documentation for the Rich Honey confectionery.',
     },
     servers: [{
-      url: process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`
+      url: process.env.RENDER_EXTERNAL_URL || 
+          process.env.BASE_URL || 
+          `http://localhost:${process.env.PORT || 3000}`
     }]
   },
   apis: ['./app/routes/*.js']
@@ -54,7 +59,7 @@ const swaggerOptions = {
 
 swaggerDocs(app, swaggerOptions);
 
-// Rutas
+// Rutas (sin cambios)
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/clients', clientsRoutes);
@@ -63,10 +68,28 @@ app.use('/api/administrator', adminsRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/sales', salesRoutes);
 
+// Health Check Endpoint (nuevo)
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    service: 'Rich Honey API',
+    environment: process.env.NODE_ENV || 'development',
+    baseUrl: req.baseUrl,
+    renderService: process.env.RENDER_SERVICE_NAME,
+    renderUrl: process.env.RENDER_EXTERNAL_URL
+  });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-  const serverUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
-  console.log(`Servidor corriendo en ${serverUrl}`);
-  console.log(`Modo: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`Documentación Swagger: ${serverUrl}/api-docs`);
+  const serverUrl = process.env.RENDER_EXTERNAL_URL || 
+                   process.env.BASE_URL || 
+                   `http://localhost:${PORT}`;
+  
+  console.log(`\n=== Rich Honey API ===`);
+  console.log(`✅ Servidor activo en: ${serverUrl}`);
+  console.log(`🔧 Modo: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`📚 Swagger UI: ${serverUrl}/api-docs`);
+  console.log(`🏥 Health Check: ${serverUrl}/health`);
+  console.log(`🌍 Render URL: ${process.env.RENDER_EXTERNAL_URL || 'No configurada'}\n`);
 });
